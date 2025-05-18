@@ -1,0 +1,20 @@
+-- 1a) Compare FTE per Discharge rural vs. urban
+SELECT
+  `Rural Versus Urban`                       AS setting,
+  ROUND(
+    AVG(
+      SAFE_DIVIDE(
+        `FTE  Employees on Payroll`,
+        `Total Discharges `
+      )
+    ),
+    2
+  )                                           AS avg_fte_per_discharge
+FROM
+  `adta5240sana1.rural_vs_urban.hospital_financial_analysis`
+WHERE
+  `Total Discharges ` > 0
+GROUP BY
+  setting
+ORDER BY
+  setting;
