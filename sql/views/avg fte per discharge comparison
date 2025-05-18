@@ -1,0 +1,31 @@
+WITH base_data AS (
+  SELECT
+    `Rural Versus Urban` AS setting,
+    SAFE_DIVIDE(`FTE  Employees on Payroll`, `Total Discharges `) AS fte_per_discharge
+  FROM
+    `adta5240sana1.rural_vs_urban.hospital_financial_analysis`
+  WHERE
+    `Total Discharges ` > 0 AND `FTE  Employees on Payroll` IS NOT NULL
+),
+
+avg_by_setting AS (
+  SELECT
+    setting,
+    ROUND(AVG(fte_per_discharge), 2) AS avg_fte_per_discharge
+  FROM
+    base_data
+  GROUP BY
+    setting
+),
+
+rural_vs_urban_ratio AS (
+  SELECT
+    r.avg_fte_per_discharge AS rural_avg_fte_per_discharge,
+    u.avg_fte_per_discharge AS urban_avg_fte_per_discharge,
+    ROUND(SAFE_DIVIDE(r.avg_fte_per_discharge, u.avg_fte_per_discharge), 2) AS rural_vs_urban_ratio
+  FROM
+    (SELECT avg_fte_per_discharge FROM avg_by_setting WHERE setting = 'R') r,
+    (SELECT avg_fte_per_discharge FROM avg_by_setting WHERE setting = 'U') u
+)
+
+SELECT * FROM rural_vs_urban_ratio
