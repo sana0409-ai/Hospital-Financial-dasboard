@@ -1,0 +1,9 @@
+SELECT
+  processed_input  AS feature_name,
+  weight           AS coefficient
+FROM
+  ML.WEIGHTS(
+    MODEL `adta5240sana1.rural_vs_urban.rural_finstress_model`
+  )
+ORDER BY
+  ABS(weight) DESC;
