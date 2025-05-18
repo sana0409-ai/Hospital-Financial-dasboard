@@ -1,0 +1,37 @@
+-- 1) Hard‑code your Top 10 CCNs
+WITH top10 AS (
+  SELECT 520087 AS ccn UNION ALL  -- GUNDERSEN LUTHERAN MEDICAL CENTER I
+  SELECT 520019 UNION ALL         -- ASPIRUS RHINELANDER HOSPITAL
+  SELECT 360180 UNION ALL         -- CLEVELAND CLINIC HOSPITAL
+  SELECT 50076  UNION ALL         -- KFH – SAN FRANCISCO
+  SELECT 520107 UNION ALL         -- HOLY FAMILY MEMORIAL INC
+  SELECT 220071 UNION ALL         -- MASSACHUSETTS GENERAL HOSPITAL
+  SELECT 50138  UNION ALL         -- KFH – LOS ANGELES
+  SELECT 100038 UNION ALL         -- MEMORIAL REGIONAL HOSPITAL
+  SELECT 490021 UNION ALL         -- CENTRA HEALTH
+  SELECT 360068                   -- THE TOLEDO HOSPITAL
+)
+
+SELECT
+  h.`Hospital Name`                         AS hospital,
+  h.`Provider CCN`                          AS ccn,
+  ROUND(
+    AVG(
+      SAFE_DIVIDE(
+        h.`FTE  Employees on Payroll`,
+        h.`Total Discharges `
+      )
+    ),
+    2
+  )                                          AS avg_fte_per_discharge
+FROM
+  `adta5240sana1.rural_vs_urban.hospital_financial_analysis` AS h
+JOIN
+  top10                                                    AS t
+  ON h.`Provider CCN` = t.ccn
+WHERE
+  h.`Total Discharges ` > 0
+GROUP BY
+  hospital, ccn
+ORDER BY
+  avg_fte_per_discharge DESC;
