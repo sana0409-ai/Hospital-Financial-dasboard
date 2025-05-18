@@ -1,0 +1,16 @@
+SELECT
+  `Hospital Name`      AS hospital,
+  `Provider CCN`       AS ccn,
+  `Net Income`         AS net_income
+FROM
+  `adta5240sana1.rural_vs_urban.hospital_financial_analysis`
+WHERE
+  `Rural Versus Urban` = 'R'
+  AND `Net Income` < 0
+ORDER BY
+  net_income ASC   -- most negative (largest losses) first
+LIMIT
+  10;
+
+
+
