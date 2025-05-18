@@ -1,0 +1,19 @@
+SELECT
+  `Rural Versus Urban`          AS setting,
+  ROUND(
+    AVG(
+      SAFE_DIVIDE(
+        COALESCE(`Net Revenue from Medicaid`, 0),
+        `Total Patient Revenue`
+      )*100
+    ) 
+  , 1)                           AS avg_medicaid_revenue_pct
+FROM
+  `adta5240sana1.rural_vs_urban.hospital_financial_analysis`
+WHERE
+  `Total Patient Revenue` > 0
+  AND `Rural Versus Urban` IN ('R','U')
+GROUP BY
+  setting
+ORDER BY
+  setting;
