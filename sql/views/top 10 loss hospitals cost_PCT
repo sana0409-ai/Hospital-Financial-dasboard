@@ -1,0 +1,41 @@
+WITH base_data AS (
+  SELECT
+    `Provider CCN` AS ccn,
+    `Hospital Name` AS hospital,
+    `Rural Versus Urban` AS setting,
+    `Net Income` AS net_income,
+    SAFE_DIVIDE(`Total Costs`, `Total Discharges `) AS cost_per_discharge
+  FROM
+    `adta5240sana1.rural_vs_urban.hospital_financial_analysis`
+  WHERE
+    `Total Costs` > 0 AND `Total Discharges ` > 0
+),
+
+urban_avg AS (
+  SELECT
+    AVG(cost_per_discharge) AS urban_avg_cost
+  FROM
+    base_data
+  WHERE
+    setting = 'U'
+),
+
+top10_loss_rural AS (
+  SELECT *
+  FROM base_data
+  WHERE setting = 'R'
+  ORDER BY net_income ASC
+  LIMIT 10
+)
+
+SELECT
+  t.hospital,
+  t.ccn,
+  ROUND(t.net_income, 0) AS net_income,
+  ROUND(t.cost_per_discharge, 2) AS cost_per_discharge,
+  ROUND(u.urban_avg_cost, 2) AS urban_avg_cost,
+  ROUND(SAFE_DIVIDE(t.cost_per_discharge, u.urban_avg_cost) * 100, 1) AS cost_vs_urban_pct
+FROM
+  top10_loss_rural t
+CROSS JOIN
+  urban_avg u
