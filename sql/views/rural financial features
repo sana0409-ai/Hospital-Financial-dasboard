@@ -1,0 +1,42 @@
+SELECT
+  `Provider CCN`                                             AS ccn,
+  `Net Income`                                               AS label,             -- dependent var
+
+  -- 1) Uncompensated care %
+  SAFE_DIVIDE(
+    `Total Unreimbursed and Uncompensated Care`,
+    `Total Patient Revenue`
+  )                                                           AS pct_uncomp_care,
+
+  -- 2) Cost per discharge
+  SAFE_DIVIDE(
+    `Total Costs`,
+    `Total Discharges `
+  )                                                           AS cost_per_discharge,
+
+  --3) Staffing intensity
+  SAFE_DIVIDE(
+    `FTE  Employees on Payroll`,
+    `Total Discharges `
+  )                                                           AS fte_per_discharge,
+
+  -- 4) Medicaid dependence
+  SAFE_DIVIDE(
+    `Net Revenue from Medicaid`,
+    `Total Patient Revenue`
+  )                                                           AS pct_medicaid_rev,
+
+  -- 5) Bed utilization rate
+  SAFE_DIVIDE(
+    `Hospital Total Days  For Adults & Peds`,
+    `Total Bed Days Available`
+  )                                                           AS bed_util_rate
+
+FROM
+  `adta5240sana1.rural_vs_urban.hospital_financial_analysis`
+WHERE
+     `Rural Versus Urban`      = 'R'
+ AND `Total Patient Revenue`     >  0
+ AND `Total Discharges `          >  0
+ AND `Total Costs`               >  0
+ AND `Total Bed Days Available`  >  0
