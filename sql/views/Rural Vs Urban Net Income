@@ -1,0 +1,38 @@
+WITH top10_losses AS (
+  SELECT
+    `Provider CCN`   AS ccn,
+    `Net Income`     AS net_income
+  FROM
+    `adta5240sana1.rural_vs_urban.hospital_financial_analysis`
+  WHERE
+    `Rural Versus Urban` = 'R'
+    AND `Net Income` IS NOT NULL
+  ORDER BY
+    net_income ASC
+  LIMIT
+    10
+)
+
+SELECT
+  h.`Hospital Name`                                          AS hospital,
+  h.`Provider CCN`                                           AS ccn,
+  ROUND(
+    SAFE_DIVIDE(
+      COALESCE(h.`Medicaid Charges`, 0)
+    + COALESCE(h.`Net Revenue from Medicaid`, 0),
+      h.`Total Patient Revenue`
+    ) * 100,
+    1
+  )                                                           AS medicaid_support_pct,
+  h.`Net Income`                                             AS net_income
+FROM
+  top10_losses t
+JOIN
+  `adta5240sana1.rural_vs_urban.hospital_financial_analysis` h
+ON
+  h.`Provider CCN` = t.ccn
+ AND h.`Net Income`   = t.net_income
+WHERE
+  h.`Total Patient Revenue` > 0
+ORDER BY
+  medicaid_support_pct DESC;
