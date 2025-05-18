@@ -1,0 +1,30 @@
+WITH urban_avg AS (
+  SELECT
+    AVG(SAFE_DIVIDE(`FTE  Employees on Payroll`, `Total Discharges `)) AS avg_urban_fte
+  FROM
+    `adta5240sana1.rural_vs_urban.hospital_financial_analysis`
+  WHERE
+    `Rural Versus Urban` = 'U'
+    AND `Total Discharges ` > 0
+),
+rural_data AS (
+  SELECT
+    `Hospital Name` AS hospital,
+    `Provider CCN` AS ccn,
+    SAFE_DIVIDE(`FTE  Employees on Payroll`, `Total Discharges `) AS fte_per_discharge
+  FROM
+    `adta5240sana1.rural_vs_urban.hospital_financial_analysis`
+  WHERE
+    `Rural Versus Urban` = 'R'
+    AND `Total Discharges ` > 0
+)
+SELECT
+  r.hospital,
+  r.ccn,
+  r.fte_per_discharge,
+  ROUND(r.fte_per_discharge / u.avg_urban_fte, 2) AS fte_vs_urban_ratio
+FROM
+  rural_data r,
+  urban_avg u
+ORDER BY
+  fte_vs_urban_ratio DESC
