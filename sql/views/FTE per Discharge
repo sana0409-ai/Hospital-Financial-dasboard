@@ -1,0 +1,15 @@
+ --1b) Correlate FTE/discharge vs. net income for rural
+SELECT
+  ROUND(
+    CORR(
+      SAFE_DIVIDE(`FTE  Employees on Payroll`, `Total Discharges `),
+      `Net Income`
+    ),
+    3
+  )                                           AS corr_fte_discharge_vs_income
+FROM
+  `adta5240sana1.rural_vs_urban.hospital_financial_analysis`
+WHERE
+  `Rural Versus Urban` = 'R'
+  AND `Total Discharges ` > 0
+  AND `Net Income` IS NOT NULL;
